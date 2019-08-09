@@ -85,7 +85,7 @@
                         <div id="treeDemo" class="ztree"></div>
                     </div>
                     <div class="col-md-5 col-sm-5">
-                        <div> <input type="checkbox" name="all-tree" class="all-tree"> </div>
+                        <div> <input type="checkbox" name="all-tree" class="all-tree"/> 全选</div>
                         <ul class="tmp-select">
                             <!-- <li>
                                 <input type="radio" name="tmp-select-one" class="pull-left" />
@@ -205,16 +205,16 @@
 
         var newCount = 1;
         var orgResultLi="<li class='orgtree-li'><button type='button' class='close orgtree-li-close' attrId='{{attrId}}'><span>&times;</span></button>";
-            orgResultLi+="<span class='li-img'></span><span class='orgtree-li-name' data-toggle='tooltip' data-placement='top' title='{{crumb}}'>";
+            orgResultLi+="<span class='li-img {{icon}}'></span><span class='orgtree-li-name' data-toggle='tooltip' data-placement='top' title='{{crumb}}'>";
             orgResultLi+="{{nodeName}}</span></li>";
         // 默认radio，checkbox则动态变
         var tmpSelectLi='<li style="overflow:hidden"><input type="checkbox" name="tmp-select-one" class="pull-left tmp-select-btn" {{checked}} nodeId="{{nodeId}}" attrInfo="{{attrInfo}}"/>';
-            tmpSelectLi+='<span class="li-img pull-left col-sm-4"></span><div class="pull-left col-sm-8 tem-select-dept">';
+            tmpSelectLi+='<span class="li-img-sm pull-left col-sm-4 {{icon}}"></span><div class="pull-left col-sm-9 tem-select-dept">';
             tmpSelectLi+= '<h5>{{deptName}}</h5><h5>{{deptPath}}</h5></div></li>';                                      
         var mode="org"; // org选组织，people选人员
         var parentsNode = [];
         var childArray = [];
-        var tmpInfos=[]; // 存储tmp区域的nodeInfo信息，便于生成结果栏
+        var tmpInfos=[]; // 存储tmp区域的nodeInfo信息，便于生成结果栏,单个格式为id@@name@@crumb@@isParent
         var clickFlag=null; // 解决双击时触发单击事件
 
         // 悬浮出现编辑框
@@ -258,7 +258,8 @@
                     var tmpLi=tmpSelectLi.replace(/{{deptName}}/g, item.name);
                     tmpLi=tmpLi.replace(/{{deptPath}}/g, crumbText);
                     tmpLi=tmpLi.replace(/{{nodeId}}/g, item.id);
-                    tmpLi=tmpLi.replace(/{{attrInfo}}/g, item.id+"@@"+item.name+"@@"+crumbText);
+                    tmpLi=tmpLi.replace(/{{attrInfo}}/g, item.id+"@@"+item.name+"@@"+crumbText+"@@"+item.isParent);
+                    tmpLi=tmpLi.replace(/{{icon}}/g, item.isParent ? "group-icon":"user-icon");
                     // 遍历tmpinfos获取选中节点，给选中节点勾选状态
                     if(isTmpSelect(item.id)){ tmpLi=tmpLi.replace(/{{checked}}/g, "checked");}
                         tmpSelectText+=tmpLi;
@@ -277,7 +278,7 @@
             if(clickFlag) {//取消上次延时未执行的方法
                 clickFlag = clearTimeout(clickFlag);
             }
-            var oneInfo=treeNode.id+"@@"+treeNode.name+"@@组织架构 > "+treeNode.name;
+            var oneInfo=treeNode.id+"@@"+treeNode.name+"@@组织架构 > "+treeNode.name+"@@true";
             if(!isTmpSelect(treeNode.id)){
                 tmpInfos.push(oneInfo);
             }
@@ -295,7 +296,7 @@
                 }
             };
         }
-        // 根据tmp的infos数组生成结果栏，参数为node数组，单个格式为-@@-@@-
+        // 根据tmp的infos数组生成结果栏，参数为node数组，
         function createOrgResultFromTmp(infos){          
             orgResult="";
             $(".org-result").empty();
@@ -304,6 +305,7 @@
                 var tmpResult=orgResultLi.replace(/{{attrId}}/g, oneInfo[0]);
                 tmpResult=tmpResult.replace(/{{nodeName}}/g,  oneInfo[1]);
                 tmpResult=tmpResult.replace(/{{crumb}}/g,  oneInfo[1]+oneInfo[2]);
+                tmpResult=tmpResult.replace(/{{icon}}/g,  oneInfo[3]=="true"? "group-icon":"user-icon");
                 orgResult+=tmpResult;
             });
             $(".org-result").append(orgResult);

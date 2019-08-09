@@ -39,7 +39,10 @@
 }
 #org .tmp-select li{
     margin:10px 5px;
-}    
+}   
+#org .tmp-select-btn{
+    margin: 8px 5px 0 0;
+} 
 #org .tmp-select input[type="radio"]{
     line-height: 50px;
     height: 50px;
@@ -48,12 +51,13 @@
 }
 #org .tem-select-dept{
     margin-left:10px;
+    padding: 0;
 }
 #org .tem-select-dept h5:first-child{
     font-weight: 700;
 }
 #org .tem-select-dept h5{
-    margin-top: 5px;
+    margin:2px 0;
     font-size:12px;
 }
 #org .org-result{
@@ -83,9 +87,21 @@
 #org .li-img{
     width:50px;
     height: 50px;
-    background: url("./img/orgTreeUser.png");
     background-size: contain;
     display: inline-block;
+}
+#org .li-img-sm{
+    width:30px;
+    height: 30px;
+    background-size: contain;
+    display: inline-block;
+    padding:0
+}
+.user-icon{
+    background: url("./img/orgTreeUser.png");
+}
+.group-icon{
+    background: url("./img/group.gif");
 }
 #org .orgtree-li-name{
     font-size: 12px;
