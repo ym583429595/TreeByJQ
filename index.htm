@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="no-js">
+<!--<![endif]-->
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>组织树的封装</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="./reset.css">
+    <link rel="stylesheet" href="./bootstrap.min.css">
+    <link rel="stylesheet" href="./orgtree.css">
+    <script src="./jquery.min.js"></script>
+    <script src="./bootstrap.min.js"></script>
+    <script type="text/javascript" src="./jquery.ztree.core.js"></script>
+    <script type="text/javascript" src="./jquery.ztree.excheck.js"></script>
+    <script type="text/javascript" src="./jquery.ztree.exedit.js"></script>
+</head>
+
+<body style="overflow:hidden">
+    <!--[if lt IE 7]>
+            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="#">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+    <!-- <div id="orgTree">
+            <div class="org-header">组织树<span class="glyphicon glyphicon-remove"></span></div>
+            <div class="org-body">
+                <div class="nav">
+                    <div class="navbar">
+                    </div>
+                </div>
+                <div class="nav-panel latest-nav">
+                    <div class="search-header">
+                        <div class="crumb"></div>
+                        <div class="latest-search"></div>
+                    </div>  
+                    <div class="select-body">
+                        <div class="col-md-6 select-left">
+
+                        </div>
+                        <div class="col-md-6 select-right">
+
+                        </div>
+                    </div>
+                    <div class="select-footer">
+
+                    </div> 
+                </div>     
+            </div>
+            <div class="org-footer">
+                <div class="btn-group col-md-offset-4">
+                    <button class="btn btn-primary">确定<span class="select-org-num">(2)</span></button> 
+                    <button class="btn btn-default">取消  </button>       
+                </div>
+            </div>
+        </div> -->
+
+    <div id="org-tree">
+        <ul class="nav nav-pills" >
+            <li class="active"><a href="#latest" aria-controls="latest" data-toggle="tab">
+                    <span class="glyphicon glyphicon-time"></span>最近</a></li>
+            <li><a href="#org" aria-controls="org" data-toggle="tab">
+                    <span class="glyphicon glyphicon-time"></span>组织架构</a></li>
+            <li><a href="#group" aria-controls="group" data-toggle="tab">常用群组</a></li>
+            <li><a href="#search" aria-controls="search" data-toggle="tab">高级搜索</a></li>
+        </ul>
+
+        <!-- Tab panes -->
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane active" id="latest">1</div>
+            <div role="tabpanel" class="tab-pane" id="org">
+                <div class="tree-header">
+                    <div class="crumb col-sm-8">组织架构</div>
+                    <div class="input-group col-sm-4">
+                        <div class="input-group-addon glyphicon glyphicon-search"></div>
+                        <input type="text" class="form-control" id="search" placeholder="Search">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-7 col-sm-7">
+                        <div id="treeDemo" class="ztree"></div>
+                    </div>
+                    <div class="col-md-5 col-sm-5">
+                        <div> <input type="checkbox" name="all-tree" class="all-tree"> </div>
+                        <ul class="tmp-select">
+                            <!-- <li>
+                                <input type="radio" name="tmp-select-one" class="pull-left" />
+                                <span class="li-img pull-left"></span>
+                                <div class="pull-left tem-select-dept">
+                                    <h5>{{deptName}}</h5>
+                                    <h5>{{deptPath}}</h5>
+                                </div>
+                            </li> -->
+                        </ul>
+                    </div>
+                </div>
+                <ul class="org-result">
+                </ul>
+            </div>
+            <div role="tabpanel" class="tab-pane" id="group">3</div>
+            <div role="tabpanel" class="tab-pane" id="search">4</div>
+        </div>
+
+    </div>
+
+
+    <script>
+        var setting = {
+            view: {
+                // 悬浮时可增加，编辑，删除树节点
+                addHoverDom: addHoverDom,
+                removeHoverDom: removeHoverDom,
+                selectedMulti: false
+            },
+            check: {
+                enable: false,
+                // chkboxType: { "Y" : "s", "N" : "s" }
+            },
+            data: {
+                simpleData: {
+                    enable: true
+                }
+            },
+            edit: {
+                enable: true
+            },
+            callback:{
+                onCheck:onCheckEvent,
+                onClick:onClickEvent,
+                onDblClick: zTreeOnDblClick
+            }
+        };
+
+        // 
+        var zNodes =[
+        {id:0, pId:null, name:"组织架构", open:true},
+        {id:1, pId:0, name:"基本功能1", open:true},
+		{id:101, pId:1, name:"java"},
+		{id:102, pId:1, name:"python"},
+		{id:103, pId:1, name:"连接线"},
+		{id:104, pId:1, name:"节点 图标"},
+		{id:108, pId:1, name:"节点数据"},
+		{id:109, pId:1, name:"异步加载 节点数据"},
+		{id:110, pId:1, name:"更新 节点数据"},
+		{id:111, pId:1, name:"单击 节点 控制"},
+		{id:112, pId:1, name:"展开 / 折叠 父节点 控制"},
+		{id:113, pId:1, name:"根据 参数 查找 节点"},
+		{id:114, pId:1, name:"其他 鼠标 事件监听"},
+        {id:1111, pId:101, name:"JSON的子签"},
+		{id:2, pId:0, name:" 复/单选框功能 演示", open:false},
+		{id:201, pId:2, name:"Checkbox 勾选操作"},
+		{id:206, pId:2, name:"Checkbox 演示"},
+		{id:207, pId:2, name:"Checkbox chkDisabled 演示"},
+		{id:208, pId:2, name:"Checkbox halfCheck 演示"},
+		{id:202, pId:2, name:"Checkbox 勾选统计"},
+		{id:203, pId:2, name:"用 zTree 方法 勾选 Checkbox"},
+		{id:204, pId:2, name:"Radio 勾选操作"},
+		{id:209, pId:2, name:"Radio check 演示"},
+		{id:210, pId:2, name:"Radio chkDisabled 演示"},
+		{id:211, pId:2, name:"Radio halfCheck 演示"},
+		{id:205, pId:2, name:"用 zTree 方法 勾选 Radio"},
+		{id:3, pId:0, name:"[exedit] 编辑功能 演示", open:false},
+		{id:301, pId:3, name:"拖拽 节点 基本控制"},
+		{id:302, pId:3, name:"拖拽 节点 高级控制"},
+		{id:303, pId:3, name:"用 zTree 方法 移动 / 复制 节点"},
+		{id:304, pId:3, name:"基本 增 / 删 / 改 节点"},
+		{id:305, pId:3, name:"高级 增 / 删 / 改 节点"},
+		{id:306, pId:3, name:"用 zTree 方法 增 / 删 / 改 节点"},
+		{id:307, pId:3, name:"异步加载 & 编辑功能 共存"},
+		{id:308, pId:3, name:"多棵树之间 的 数据交互"},
+
+		{id:4, pId:0, name:"大数据量 演示", open:false},
+		{id:401, pId:4, name:"一次性加载大数据量"},
+		{id:402, pId:4, name:"分批异步加载大数据量"},
+		{id:403, pId:4, name:"分批异步加载大数据量"},
+
+		{id:5, pId:0, name:"组合功能 演示", open:false},
+		{id:501, pId:5, name:"冻结根节点"},
+		{id:502, pId:5, name:"单击展开/折叠节点"},
+		{id:503, pId:5, name:"保持展开单一路径"},
+		{id:504, pId:5, name:"添加 自定义控件"},
+		{id:505, pId:5, name:"checkbox / radio 共存"},
+		{id:506, pId:5, name:"左侧菜单"},
+		{id:507, pId:5, name:"下拉菜单"},
+		{id:509, pId:5, name:"带 checkbox 的多选下拉菜单"},
+		{id:510, pId:5, name:"带 radio 的单选下拉菜单"},
+		{id:508, pId:5, name:"右键菜单 的 实现"},
+		{id:511, pId:5, name:"与其他 DOM 拖拽互动"},
+		{id:512, pId:5, name:"异步加载模式下全部展开"},
+
+		{id:6, pId:0, name:"其他扩展功能 演示", open:false},
+		{id:601, pId:6, name:"隐藏普通节点"},
+		{id:602, pId:6, name:"配合 checkbox 的隐藏"},
+		{id:603, pId:6, name:"配合 radio 的隐藏"}
+        ];
+
+        $(document).ready(function(){
+            $.fn.zTree.init($("#treeDemo"), setting, zNodes);
+        });
+
+        var newCount = 1;
+        var orgResultLi="<li class='orgtree-li'><button type='button' class='close orgtree-li-close' attrId='{{attrId}}'><span>&times;</span></button>";
+            orgResultLi+="<span class='li-img'></span><span class='orgtree-li-name' data-toggle='tooltip' data-placement='top' title='{{crumb}}'>";
+            orgResultLi+="{{nodeName}}</span></li>";
+        // 默认radio，checkbox则动态变
+        var tmpSelectLi='<li style="overflow:hidden"><input type="checkbox" name="tmp-select-one" class="pull-left tmp-select-btn" {{checked}} nodeId="{{nodeId}}" attrInfo="{{attrInfo}}"/>';
+            tmpSelectLi+='<span class="li-img pull-left col-sm-4"></span><div class="pull-left col-sm-8 tem-select-dept">';
+            tmpSelectLi+= '<h5>{{deptName}}</h5><h5>{{deptPath}}</h5></div></li>';                                      
+        var mode="org"; // org选组织，people选人员
+        var parentsNode = [];
+        var childArray = [];
+        var tmpInfos=[]; // 存储tmp区域的nodeInfo信息，便于生成结果栏
+        // 悬浮出现编辑框
+        function addHoverDom(treeId, treeNode) {
+            var sObj = $("#" + treeNode.tId + "_span");
+            if (treeNode.editNameFlag || $("#addBtn_"+treeNode.tId).length>0) return;
+            var addStr = "<span class='button add' id='addBtn_" + treeNode.tId
+                + "' title='add node' onfocus='this.blur();'></h5>";
+            sObj.after(addStr);
+            var btn = $("#addBtn_"+treeNode.tId);
+            if (btn) btn.bind("click", function(){
+                var zTree = $.fn.zTree.getZTreeObj("treeDemo");
+                zTree.addNodes(treeNode, {id:(100 + newCount), pId:treeNode.id, name:"new node" + (newCount++)});
+                return false;
+            });
+        };
+
+        function removeHoverDom(treeId, treeNode) {
+            $("#addBtn_"+treeNode.tId).unbind().remove();
+        };
+        
+        function onClickEvent(event, treeId, treeNode){
+            // TODO 点击调用接口获取子节点信息，参数：节点id，组织类型
+
+            // 左上面包屑展示
+            window.parentsNode = [];
+            var parentsNode=getParentsNode(treeNode);
+            var crumbText="",tmpSelectText="";
+            for (var i=parentsNode.length; i>0; i--){
+                crumbText+=parentsNode[i-1].name + " > ";
+            }
+            crumbText+=treeNode.name;
+            $(".crumb").empty().html(crumbText);
+            // 信息展示到右侧，分选组织，选人员
+            if(!$.isEmptyObject(treeNode.children)){
+                treeNode.children.forEach(function(item, index){
+                    var tmpLi=tmpSelectLi.replace(/{{deptName}}/g, item.name);
+                    tmpLi=tmpLi.replace(/{{deptPath}}/g, crumbText);
+                    tmpLi=tmpLi.replace(/{{nodeId}}/g, item.id);
+                    tmpLi=tmpLi.replace(/{{attrInfo}}/g, item.id+"@@"+item.name+"@@"+crumbText);
+                    // 遍历tmpinfos获取选中节点，给选中节点勾选状态
+                    if(isTmpSelect(item.id)){ tmpLi=tmpLi.replace(/{{checked}}/g, "checked");}
+                        tmpSelectText+=tmpLi;
+                })
+            }else{
+                tmpSelectText="无子节点";
+            }
+            $(".tmp-select").empty().html(tmpSelectText);
+            // 展开点击的节点
+            var treeObj = $.fn.zTree.getZTreeObj("treeDemo");
+            treeObj.expandNode(treeNode,true);
+        }
+        // 双击直接选择部门
+        function zTreeOnDblClick(event, treeId, treeNode) {
+            console.log(treeNode ? treeNode.tId + ", " + treeNode.name : "isRoot");
+            var oneInfo=treeNode.id+"@@"+treeNode.name+"@@组织架构 > "+treeNode.name;
+            if(!isTmpSelect(treeNode.id)){
+                tmpInfos.push(oneInfo);
+            }
+            createOrgResultFromTmp(tmpInfos);
+        };
+        // 判断某节点id是不是在tmpInfos中，第二个参数代表同时删除此节点信息
+        function isTmpSelect(nodeId,toDel){
+            for(var i=0;i<tmpInfos.length;i++){
+                var oneInfo=tmpInfos[i].split("@@");
+                if(nodeId==oneInfo[0]){ 
+                    if(toDel!==null && toDel) {
+                        tmpInfos.splice(i,1);
+                    }
+                    return true;
+                }
+            };
+        }
+        // 根据tmp的infos数组生成结果栏，参数为node数组，单个格式为-@@-@@-
+        function createOrgResultFromTmp(infos){          
+            orgResult="";
+            $(".org-result").empty();
+            infos.forEach(function(item, index){
+                var oneInfo=item.split("@@");
+                var tmpResult=orgResultLi.replace(/{{attrId}}/g, oneInfo[0]);
+                tmpResult=tmpResult.replace(/{{nodeName}}/g,  oneInfo[1]);
+                tmpResult=tmpResult.replace(/{{crumb}}/g,  oneInfo[1]+oneInfo[2]);
+                orgResult+=tmpResult;
+            });
+            $(".org-result").append(orgResult);
+        }
+        // 结果栏中点击删除时删除节点和结果
+    $("#org").on("click",".orgtree-li-close",function(){
+        var deleteId=$(this).attr("attrId");
+        isTmpSelect(deleteId,true);
+        createOrgResultFromTmp(tmpInfos);
+        // 取消tmpselect的选择状态
+        $(".tmp-select-btn[nodeId="+deleteId+"]").prop("checked",false);
+        // 删除org-result 中选中的节点
+        //$(this).parent().remove();
+    })
+
+    $("#org").on("change",".tmp-select-btn",function(){
+        var status=$(this).prop("checked"),
+        nodeInfo=$(this).attr("attrInfo");
+        if(status){
+            tmpInfos.push(nodeInfo)
+        }else{
+            tmpInfos.splice($.inArray(nodeInfo,tmpInfos),1);
+        }
+        createOrgResultFromTmp(tmpInfos);    
+    })
+    $(".all-tree").on("change",function(){
+        var status=$(this).prop("checked"),
+            allCheckBtn=$(".tmp-select-btn");
+        allCheckBtn.prop("checked", status);
+        allCheckBtn.each(function(index,item){
+            var nodeInfo=item.getAttribute("attrinfo"),
+                nodeIndex=$.inArray(nodeInfo, tmpInfos);
+            if(status){
+                if(nodeIndex==-1){
+                    tmpInfos.push(nodeInfo);
+                }
+            }else{
+                if(nodeIndex>-1){ 
+                    tmpInfos.splice(nodeIndex,1);
+                }
+            }
+        })
+        createOrgResultFromTmp(tmpInfos); 
+    })
+        function refleshTmpSelect(treeNode){
+            // 左上面包屑展示
+            window.parentsNode = [];
+            var parentsNode=getParentsNode(treeNode);
+            var crumbText="",tmpSelectText="";
+            for (var i=parentsNode.length; i>0; i--){
+                crumbText+=parentsNode[i-1].name + " > ";
+            }
+            crumbText+=treeNode.name;
+            $(".crumb").empty().html(crumbText);
+            // 信息展示到右侧，分选组织，选人员
+            if(!$.isEmptyObject(treeNode.children)){
+                treeNode.children.forEach(function(item, index){
+                    var tmpLi=tmpSelectLi.replace(/{{deptName}}/g, item.name);
+                        tmpLi=tmpLi.replace(/{{deptPath}}/g, crumbText);
+                        tmpLi=tmpLi.replace(/{{attrId}}/g, item.id);
+                    if(item.checked){ tmpLi=tmpLi.replace(/{{checked}}/g, "checked");}
+                        tmpSelectText+=tmpLi;
+                })
+            }else{
+                tmpSelectText="无内容";
+            }
+            $(".tmp-select").empty().html(tmpSelectText);
+        }
+        // 点击checkbox获取所有节点信息，并显示到结果栏中
+        function onCheckEvent(event, treeId, treeNode){
+            var treeObj=$.fn.zTree.getZTreeObj("treeDemo"),
+            nodes=treeObj.getCheckedNodes(true);
+            createOrgResult(nodes);
+            // TODO 可刷新右侧tmp节点信息，但是左侧选择栏还是旧的 refleshTmpSelect(treeNode);
+        }
+    // 工具方法
+    // 递归获取目标节点所有父节点
+    function getParentsNode(treeNode){
+        var thisParentNode = treeNode.getParentNode(); //得到该节点的父节点
+        if( thisParentNode != null ){ // 父节点存在
+            parentsNode.push(thisParentNode); // 储存至数组
+            getParentsNode(thisParentNode); // 重调 
+        }else{
+            return false;
+        }      
+        if(parentsNode.length)  {return parentsNode;}   
+    }
+
+    // 递归获取目标节点所有子节点
+    function getChildrenNode(treeNode){
+        var thisIsParent = treeNode.isParent; // 获取目标节点 isParent 属性，判断是否为父节点
+        if( thisIsParent == true ){
+            var thisChildrenNode = treeNode.children; // 得到该节点的子节点集合
+            for(var i=0;i<thisChildrenNode.length;i++){
+                childArray.push(thisChildrenNode[i]); // 将该子节点加入数组中
+                getChildrenNode(thisChildrenNode[i]); // 重调       
+            }
+        }else{
+            return false;
+        }
+    }
+    // 结果栏生成li
+    function createOrgResultFromNode(treeNode){
+            orgResult="";
+            $(".org-result").empty();
+            for(var i=0;i<treeNode.length;i++){
+                // 父节点则不拼接到li中
+                if(!$.isEmptyObject(treeNode[i].children)) continue;
+                var tmpResult=orgResultLi.replace(/{{attrId}}/g, treeNode[i].id);
+                tmpResult=tmpResult.replace(/{{nodeName}}/g, treeNode[i].name);
+                orgResult+=tmpResult;
+            }
+            $(".org-result").append(orgResult);
+    }
+    // 取消ztree的选中状态 $.inArray("js", arr) .selectNode(node,true)
+    function cancelSelected(treeDom,selectTreeId){
+        var zTreeObject=$.fn.zTree.getZTreeObj(treeDom);
+        var checkedNodes=zTreeObject.getCheckedNodes();//得到选中的节点
+        if( typeof(selectTreeId)!="object" ) {
+            var tmp=[];
+            tmp.push(+selectTreeId);
+            selectTreeId=tmp;
+        }
+        for(var k=0;k<checkedNodes.length;k++){
+            // if(checkedNodes[k].id==deleteId){
+                if($.inArray(checkedNodes[k].id, selectTreeId)>-1){
+                zTreeObject.checkNode(checkedNodes[k]);//取消这个节点的勾选状态
+            }
+        }
+    }
+// 根据Id设置ztree的选中状态 
+function confirmSelected(treeDom,selectTreeId){
+        var zTreeObject=$.fn.zTree.getZTreeObj(treeDom);
+        //var checkedNodes=zTreeObject.getCheckedNodes();//得到选中的节点
+        if( typeof(selectTreeId)!="object" ) {
+            var tmp=[];
+            tmp.push(+selectTreeId);
+            selectTreeId=tmp;
+        }
+        selectTreeId.forEach(function(item, index){
+            var node=zTreeObject.getNodeByParam('id',item,null);
+            zTreeObject.selectNode(node,true);//节点的勾选
+        })
+            
+            
+        
+    }
+    
+    </script>
+</body>
+
+</html>
