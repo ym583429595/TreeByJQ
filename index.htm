@@ -114,7 +114,8 @@
                 // 悬浮时可增加，编辑，删除树节点
                 addHoverDom: addHoverDom,
                 removeHoverDom: removeHoverDom,
-                selectedMulti: false
+                selectedMulti: false,
+                dblClickExpand: false
             },
             check: {
                 enable: false,
@@ -214,6 +215,8 @@
         var parentsNode = [];
         var childArray = [];
         var tmpInfos=[]; // 存储tmp区域的nodeInfo信息，便于生成结果栏
+        var clickFlag=null; // 解决双击时触发单击事件
+
         // 悬浮出现编辑框
         function addHoverDom(treeId, treeNode) {
             var sObj = $("#" + treeNode.tId + "_span");
@@ -228,12 +231,17 @@
                 return false;
             });
         };
-        function(){}
+
         function removeHoverDom(treeId, treeNode) {
             $("#addBtn_"+treeNode.tId).unbind().remove();
         };
         
         function onClickEvent(event, treeId, treeNode){
+            if(clickFlag) {//取消上次延时未执行的方法
+                clickFlag = clearTimeout(clickFlag);
+            }
+            clickFlag = setTimeout(function() {
+                // click 事件的处理
             // TODO 点击调用接口获取子节点信息，参数：节点id，组织类型
             // 左上面包屑展示
             window.parentsNode = [];
@@ -262,10 +270,13 @@
             // 展开点击的节点
             var treeObj = $.fn.zTree.getZTreeObj("treeDemo");
             treeObj.expandNode(treeNode,true);
+        }, 300);//延时300毫秒执行
         }
         // 双击直接选择部门
         function zTreeOnDblClick(event, treeId, treeNode) {
-            console.log(treeNode ? treeNode.tId + ", " + treeNode.name : "isRoot");
+            if(clickFlag) {//取消上次延时未执行的方法
+                clickFlag = clearTimeout(clickFlag);
+            }
             var oneInfo=treeNode.id+"@@"+treeNode.name+"@@组织架构 > "+treeNode.name;
             if(!isTmpSelect(treeNode.id)){
                 tmpInfos.push(oneInfo);
